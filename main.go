@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -64,10 +66,28 @@ func rleCompress(input *os.File, output *os.File) {
 		for j := i + 1; j < len(content) && content[i] == content[j]; j++ {
 			count++
 		}
-
 		output.WriteString(fmt.Sprintf("%c%d", content[i], count))
 		i += count
 	}
 }
 
-func rleDecompress(input *os.File, output *os.File) {}
+func rleDecompress(input *os.File, output *os.File) {
+	content, err := io.ReadAll(input)
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		return
+	}
+
+	for i := 0; i < len(content); {
+
+		char := string(content[i+1])
+		times, err := strconv.Atoi(char)
+
+		if err != nil {
+			fmt.Printf("Failed to parse %s as int", char)
+		}
+
+		output.WriteString(fmt.Sprintf("%s", strings.Repeat(string(content[i]), times)))
+		i += 2
+	}
+}
